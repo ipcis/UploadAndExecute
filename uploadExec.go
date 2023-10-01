@@ -76,14 +76,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
             return
         }
 
-        // Wenn die Ausführung fehlschlägt, warte 5 Sekunden und versuche es erneut
-        time.Sleep(5 * time.Second)
-        err = executeFile(outputPath)
-        if err == nil {
-            fmt.Fprintf(w, "Die Datei wurde erfolgreich ausgeführt.")
-            return
-        }
-
         http.Error(w, "Die Datei konnte nicht ausgeführt werden", http.StatusInternalServerError)
     } else {
         // HTML-Formular zur Dateiübertragung anzeigen
