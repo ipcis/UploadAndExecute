@@ -29,7 +29,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
             http.Error(w, err.Error(), http.StatusInternalServerError)
             return
         }
-        defer file.Close()
+        defer file.Close() // Datei schließen, wenn die Funktion beendet ist
 
         fileName := header.Filename
         // Prüfen, ob die Dateiendung in der Liste erlaubter Endungen ist
@@ -55,7 +55,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
             http.Error(w, err.Error(), http.StatusInternalServerError)
             return
         }
-        defer outFile.Close()
+        defer outFile.Close() // Datei schließen, wenn die Funktion beendet ist
 
         _, err = io.Copy(outFile, file)
         if err != nil {
