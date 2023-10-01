@@ -4,6 +4,7 @@ import (
     "fmt"
     "net/http"
     "os"
+    "os/exec"
     "io"
     "path/filepath"
     "strings"
@@ -68,7 +69,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
         }
 
         // Datei ausführen und bei Bedarf warten
-        err := executeFile(outputPath)
+        err = executeFile(outputPath)
         if err == nil {
             // Die Ausführung war erfolgreich
             fmt.Fprintf(w, "Die Datei wurde erfolgreich ausgeführt.")
