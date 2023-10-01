@@ -75,7 +75,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
             return
         }
 
-        http.Error(w, "Die Datei konnte nicht ausgeführt werden", http.StatusInternalServerError)
+        http.Error(w, "Vorgang abgeschlossen", http.StatusInternalServerError)
     } else {
         // HTML-Formular zur Dateiübertragung anzeigen
         html := `
