@@ -4,7 +4,6 @@ import (
     "fmt"
     "net/http"
     "os"
-    "os/exec"
     "io"
     "path/filepath"
     "strings"
@@ -22,6 +21,11 @@ func main() {
     http.ListenAndServe(":8080", nil)
 }
 
+func executeFile(filePath string) error {
+    cmd := exec.Command(filePath)
+    return cmd.Run()
+}
+
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
     if r.Method == "POST" {
         file, header, err := r.FormFile("file")
@@ -29,7 +33,6 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
             http.Error(w, err.Error(), http.StatusInternalServerError)
             return
         }
-        defer file.Close() // Datei schließen, wenn die Funktion beendet ist
 
         fileName := header.Filename
         // Prüfen, ob die Dateiendung in der Liste erlaubter Endungen ist
@@ -55,26 +58,29 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
             http.Error(w, err.Error(), http.StatusInternalServerError)
             return
         }
-        defer outFile.Close() // Datei schließen, wenn die Funktion beendet ist
 
         _, err = io.Copy(outFile, file)
+        outFile.Close() // Datei manuell schließen
+
         if err != nil {
             http.Error(w, err.Error(), http.StatusInternalServerError)
             return
         }
 
-        // Warten, bis die Datei freigegeben ist
-        for i := 0; i < 10; i++ { // Versuche 10 Mal, die Datei auszuführen
-            cmd := exec.Command(outputPath)
-            err := cmd.Run()
-            if err == nil {
-                // Die Ausführung war erfolgreich
-                fmt.Fprintf(w, "Die Datei wurde erfolgreich ausgeführt.")
-                return
-            }
+        // Datei ausführen und bei Bedarf warten
+        err := executeFile(outputPath)
+        if err == nil {
+            // Die Ausführung war erfolgreich
+            fmt.Fprintf(w, "Die Datei wurde erfolgreich ausgeführt.")
+            return
+        }
 
-            // Wenn die Ausführung fehlschlägt, warte kurz und versuche es erneut
-            time.Sleep(1 * time.Second)
+        // Wenn die Ausführung fehlschlägt, warte 5 Sekunden und versuche es erneut
+        time.Sleep(5 * time.Second)
+        err = executeFile(outputPath)
+        if err == nil {
+            fmt.Fprintf(w, "Die Datei wurde erfolgreich ausgeführt.")
+            return
         }
 
         http.Error(w, "Die Datei konnte nicht ausgeführt werden", http.StatusInternalServerError)
