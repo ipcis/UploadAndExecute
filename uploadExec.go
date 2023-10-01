@@ -8,7 +8,6 @@ import (
     "io"
     "path/filepath"
     "strings"
-    "time"
 )
 
 func main() {
