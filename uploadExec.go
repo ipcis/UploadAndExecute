@@ -8,6 +8,7 @@ import (
     "io"
     "path/filepath"
     "strings"
+    "time"
 )
 
 func main() {
@@ -56,15 +57,21 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
             return
         }
 
-        // Ausführen der hochgeladenen Datei
-        cmd := exec.Command(outputPath)
-        output, err := cmd.CombinedOutput()
-        if err != nil {
-            http.Error(w, err.Error(), http.StatusInternalServerError)
-            return
+        // Warten, bis die Datei freigegeben ist
+        for i := 0; i < 10; i++ { // Versuche 10 Mal, die Datei auszuführen
+            cmd := exec.Command(outputPath)
+            err := cmd.Run()
+            if err == nil {
+                // Die Ausführung war erfolgreich
+                fmt.Fprintf(w, "Die Datei wurde erfolgreich ausgeführt.")
+                return
+            }
+
+            // Wenn die Ausführung fehlschlägt, warte kurz und versuche es erneut
+            time.Sleep(1 * time.Second)
         }
 
-        fmt.Fprintf(w, "Ausgabe:\n%s", output)
+        http.Error(w, "Die Datei konnte nicht ausgeführt werden", http.StatusInternalServerError)
     } else {
         // HTML-Formular zur Dateiübertragung anzeigen
         html := `
