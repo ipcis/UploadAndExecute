@@ -12,6 +12,12 @@ import (
 )
 
 func main() {
+    // Überprüfen, ob das Upload-Verzeichnis existiert, und es erstellen, wenn es nicht existiert
+    uploadDir := "./uploads"
+    if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
+        os.Mkdir(uploadDir, os.ModePerm)
+    }
+
     http.HandleFunc("/", uploadHandler)
     http.ListenAndServe(":8080", nil)
 }
